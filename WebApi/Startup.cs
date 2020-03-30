@@ -22,7 +22,7 @@ namespace WebApi
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddZKClient(Configuration.GetSection("ConfigCenter"), Configuration.GetSection("ZKSetting"));
+            services.AddZKMiddleware(Configuration.GetSection("ConfigCenter"), Configuration.GetSection("ZKSetting"));            
         }
 
 
@@ -34,17 +34,7 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseZKClient();
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
-            });
+            app.UseZKMiddleware();
         }
     }
 }

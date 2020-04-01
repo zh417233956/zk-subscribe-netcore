@@ -8,7 +8,8 @@ FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
 COPY ["WebApi/WebApi.csproj", "WebApi/"]
 COPY ["Utils/ZKSubscribeHelper/ZKSubscribeHelper.csproj", "Utils/ZKSubscribeHelper/"]
-RUN dotnet restore "WebApi/WebApi.csproj"
+COPY ["NuGet.Config", "NuGet.Config"]
+RUN dotnet restore --configfile "NuGet.Config"  "WebApi/WebApi.csproj"
 COPY . .
 WORKDIR "/src/WebApi"
 RUN dotnet build "WebApi.csproj" -c Release -o /app/build

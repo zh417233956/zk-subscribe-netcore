@@ -1,0 +1,14 @@
+﻿version: "3"
+
+services:
+  zkpushtocc:
+    # build: .
+    image: zkpushtocc:1.0.0 .
+    container_name: zkpushtocc_v1
+    restart: always
+    ports:
+      - 5556:80
+    volumes:
+      - "/opt/work/zkpushtocc/Configs:/app/work/zkpushtocc_v1/Configs"
+      - "/opt/work/zkpushtocc/Configs/appsettings.json:/app/work/zkpushtocc_v1/appsettings.json"
+      - "/opt/work/zkpushtocc/logs:/app/work/zkpushtocc_v1/logs"

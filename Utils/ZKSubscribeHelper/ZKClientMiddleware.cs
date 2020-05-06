@@ -15,28 +15,53 @@ namespace ZKSubscribeHelper
     {
         ILogger<ZKClientMiddleware> _logger;
         ZKClient _zkclient;
-        public ZKClientMiddleware(ZKClient zkclient, ILogger<ZKClientMiddleware> logger)
+        CCClientHelper _ccGHelper;
+        public ZKClientMiddleware(ZKClient zkclient, ILogger<ZKClientMiddleware> logger, CCClientHelper ccGHelper)
         {
             _logger = logger;
             _zkclient = zkclient;
             _zkclient.Init();
+            _zkclient.CheckCC();
+            _ccGHelper = ccGHelper;
         }
 
         public Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             if (context.Request.Path.Value.Equals("/"))
             {
-                var message = $"zk订阅启动成功<br />监听jodis/{_zkclient._zksetting.zkProxyDir}节点<br />当前节点值：{ string.Join(",", _zkclient.zkhelper.pools.Select(s => s.Addr).ToList()) }";
-                _logger.LogInformation(message);
+                var message = $"监听jodis/{_zkclient._zksetting.zkProxyDir}节点<br />当前节点值：{ string.Join(",", _zkclient.zkhelper.pools.Select(s => s.Addr).ToList()) }";
+
+                message += $"<br />CC的当前值为：{_ccGHelper.GetCodisProxyValue()}";
+
+                _logger.LogInformation(message.Replace("<br />",";"));
                 context.Response.ContentType = "text/html;charset=utf-8";
                 return context.Response.WriteAsync(message);
             }
             else if (context.Request.Path.Value.Equals("/getpools"))
             {
                 var message = $"当前jodis/{_zkclient._zksetting.zkProxyDir}节点：{ string.Join(",", _zkclient.zkhelper.pools.Select(s => s.Addr).ToList()) }";
+                message += $";CC的当前值为：{_ccGHelper.GetCodisProxyValue()}";
                 _logger.LogInformation(message);
                 context.Response.ContentType = "text/plain;charset=utf-8";
                 return context.Response.WriteAsync(message);
+            }
+            else if (context.Request.Path.Value.Equals("/update"))
+            {
+                _zkclient.CheckCC();
+                var message = $"手动更新CC成功;当前jodis/{_zkclient._zksetting.zkProxyDir}节点：{ string.Join(",", _zkclient.zkhelper.pools.Select(s => s.Addr).ToList()) }";
+                message += $";CC的当前值为：{_ccGHelper.GetCodisProxyValue()}";
+                _logger.LogInformation(message);
+                context.Response.ContentType = "text/plain;charset=utf-8";
+                return context.Response.WriteAsync(message);
+            }
+            else if (context.Request.Path.Value.ToLower().Equals("/mangoapi/configcentercall"))
+            {
+                string key = context.Request.Query["key"];
+                string value = context.Request.Query["value"];
+                var message = $"CC回调通知,key={key},vaule={value};";
+                _logger.LogInformation(message);
+                context.Response.ContentType = "text/plain;charset=utf-8";
+                return context.Response.WriteAsync("100");
             }
             else
             {
@@ -89,6 +114,7 @@ namespace ZKSubscribeHelper
             // 使用UseMiddleware将自定义中间件添加到请求处理管道中
             services.AddSingleton<ZKClientMiddleware>();
             services.AddSingleton<ZKClient>();
+            services.AddTransient<CCClientHelper>();
             zkConfig.Bind(_zkConfig);
             ccConfig.Bind(ConfigManager.CCConfig);
             services.Configure<Config>(ccConfig);

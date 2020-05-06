@@ -10,5 +10,7 @@ namespace ZKSubscribeHelper
         public int zkSessionTimeout { get; set; }
 
         public string zkProxyDir { get; set; }
+        public string ccPushHost { get; set; }
+        public string environment { get; set; }
     }
 }

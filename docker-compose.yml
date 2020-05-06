@@ -3,7 +3,7 @@
 services:
   zkpushtocc:
     # build: .
-    image: zkpushtocc:1.0.0 .
+    image: zkpushtocc:1.0.0
     container_name: zkpushtocc_v1
     restart: always
     ports:

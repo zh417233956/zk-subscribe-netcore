@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ZKSubscribeHelper
@@ -38,7 +39,7 @@ namespace ZKSubscribeHelper
                        _logger.LogInformation($"新增节点：{item.Addr}");
                    }
 
-                   _ = CheckCCAsync();
+                   Task.Run(async ()=> await CheckCCAsync());
                },
                (nodes) =>
                {
@@ -48,7 +49,7 @@ namespace ZKSubscribeHelper
                        _logger.LogInformation($"删除节点：{item.Addr}");
                    }
 
-                   _ = CheckCCAsync();
+                   Task.Run(async () => await CheckCCAsync());
                });
         }
 

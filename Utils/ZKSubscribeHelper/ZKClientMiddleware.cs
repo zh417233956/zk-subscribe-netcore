@@ -21,7 +21,7 @@ namespace ZKSubscribeHelper
             _logger = logger;
             _zkclient = zkclient;
             _zkclient.Init();
-            _zkclient.CheckCC();
+            _ = _zkclient.CheckCCAsync();
             _ccGHelper = ccGHelper;
         }
 
@@ -47,7 +47,7 @@ namespace ZKSubscribeHelper
             }
             else if (context.Request.Path.Value.Equals("/update"))
             {
-                _zkclient.CheckCC();
+                _ = _zkclient.CheckCCAsync();
                 var message = $"手动更新CC成功;当前jodis/{_zkclient._zksetting.zkProxyDir}节点：{ string.Join(",", _zkclient.zkhelper.pools.Select(s => s.Addr).ToList()) }";
                 message += $";CC的当前值为：{_ccGHelper.GetCodisProxyValue()}";
                 _logger.LogInformation(message);

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ZKSubscribeHelper
 {
@@ -31,25 +32,27 @@ namespace ZKSubscribeHelper
             zkhelper = new ZooKeeperHelper(_zksetting.zkAddr, _zksetting.zkProxyDir, _zksetting.zkSessionTimeout,
                (nodes) =>
                {
+                   _logger.LogInformation($"新增节点");
                    foreach (var item in nodes)
                    {
                        _logger.LogInformation($"新增节点：{item.Addr}");
                    }
 
-                   CheckCC();
+                   _ = CheckCCAsync();
                },
                (nodes) =>
                {
+                   _logger.LogInformation($"删除节点");
                    foreach (var item in nodes)
                    {
                        _logger.LogInformation($"删除节点：{item.Addr}");
                    }
 
-                   CheckCC();
+                   _ = CheckCCAsync();
                });
         }
 
-        public void CheckCC()
+        public async Task CheckCCAsync()
         {
             bool chageTag = false;
             var oldVal = _ccGHelper.GetCodisProxyValue().Split(',').ToList();
@@ -77,7 +80,7 @@ namespace ZKSubscribeHelper
                 //更新内容
                 var newValStr = string.Join(",", newVal);
                 _logger.LogInformation($"更新CC中的值为：{newValStr}");
-                _ccGHelper.SetCodisProxyValue(newValStr);
+                await _ccGHelper.SetCodisProxyValueAsync(newValStr);
             }
             else
             {

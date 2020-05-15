@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ZKSubscribeHelper
 {
@@ -33,9 +34,9 @@ namespace ZKSubscribeHelper
             return values;
         }
 
-        public string SetCodisProxyValue(string value)
+        public async Task<string> SetCodisProxyValueAsync(string value)
         {
-            string result = "";
+            var result = "";
             var postUrl = new Uri(_zksetting.ccPushHost + "/mangoapi/a9085_ConfigCenter.Data/CodisProxyHelper/ChangeCodisValue");
             var postData = new
             {
@@ -44,7 +45,7 @@ namespace ZKSubscribeHelper
             };
             _logger.LogInformation($"更新CC请求内容:{Newtonsoft.Json.JsonConvert.SerializeObject(postData)}");
             //post请求
-            result = Mango.Wcf.Util.Utilitys.HttpClientHelper.HttpPost(postUrl.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(postData), "application/json");
+            result = await Mango.Wcf.Util.Utilitys.HttpClientHelper.HttpPostAsync(postUrl.ToString(), Newtonsoft.Json.JsonConvert.SerializeObject(postData), "application/json");
             var resModel = new { RequestId = "", ResultCode = 0, ResultMsg = "" };
             resModel = Newtonsoft.Json.JsonConvert.DeserializeAnonymousType(result, resModel);
             _logger.LogInformation($"更新CC响应结果:{Newtonsoft.Json.JsonConvert.SerializeObject(resModel)}");
